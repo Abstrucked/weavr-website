@@ -208,7 +208,7 @@ export const THREAD_DEX_ORDERS_QUERY = gql`
 export const ALL_PROPOSALS = gql`
 query ALL_PROPOSALS($id: String!) {
   frabric(id: $id) {
-    paperProposals(orderBy: id, orderDirection: desc, where: { baseProposal_ : { thread: null}}) {
+    paperProposals(orderBy: id, orderDirection: desc) {
       id
       baseProposal {
         creator

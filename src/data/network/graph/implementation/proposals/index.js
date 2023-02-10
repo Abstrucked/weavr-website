@@ -26,15 +26,17 @@ export function mapVotes(rawVotes) {
 
 // Map raw paper proposals to array of vue-mc models 
 export function mapPaperProposals(rawPaperProposals) {
-  let paperProposals = [];
+  
+  let paperProposalsMap = new Map();
   try {
-    paperProposals = rawPaperProposals.map(({
+    rawPaperProposals.map(({
       id,
       baseProposal: {
         creator,
-        endTimestamp,
+        thread,
         info,
         startTimestamp,
+        endTimestamp,
         state,
         supermajority,
         votes,
@@ -42,32 +44,41 @@ export function mapPaperProposals(rawPaperProposals) {
     }) => {
       const mappedVotes = mapVotes(votes);
       const ifpsPath = getIpfsHashFromBytes32(info);
-      return new PaperProposal(
-        parseInt(id, 16),
-        null, // thread
-        null, // frabric
-        creator,
-        ProposalTypes.Paper,
-        state,
-        mappedVotes,
-        supermajority,
-        startTimestamp,
-        endTimestamp,
-        ifpsPath,
+      // let ID
+      // if(thread) { 
+      //   ID = `${id}_${thread}`
+      // } else {  
+      //   ID = `${id}_`
+      // }
+      paperProposalsMap.set(id, 
+        new PaperProposal(
+          parseInt(id, 16),
+          thread ? thread : null, // thread
+          null, // frabric
+          creator,
+          ProposalTypes.Paper,
+          state,
+          mappedVotes,
+          supermajority,
+          startTimestamp,
+          endTimestamp,
+          ifpsPath,
+        )
       )
     })
   } catch (e) {
     console.log("Issue parsing paper proposals");
     console.error(e);
   }
-  return paperProposals;
+  console.log(paperProposalsMap);
+  return paperProposalsMap;
 }
 
 // Map raw upgrade proposals to array of vue-mc models 
 export function mapUpgradeProposals(rawUpgradeProposals) {
-  let upgradeProposals = [];
+  let upgradeProposalsMap = new Map();
   try {
-    upgradeProposals = rawUpgradeProposals.map(({
+    rawUpgradeProposals.map(({
       id,
       beacon,
       code,
@@ -86,7 +97,7 @@ export function mapUpgradeProposals(rawUpgradeProposals) {
     }) => {
       const mappedVotes = mapVotes(votes);
       const ifpsPath = getIpfsHashFromBytes32(info);
-      return new UpgradeProposal(
+      upgradeProposalsMap.set(id, new UpgradeProposal(
         parseInt(id, 16),
         null, // thread
         null, // frabric
@@ -103,13 +114,13 @@ export function mapUpgradeProposals(rawUpgradeProposals) {
         parseInt(version),
         code,
         data,
-      )
+      ))
     })
   } catch (e) {
     console.log("Issue parsing upgrade proposals");
     console.error(e);
   }
-  return upgradeProposals;
+  return upgradeProposalsMap;
 }
 
 export function mapParticipantRemovalProposals(rawParticipantRemovalProposals) {
